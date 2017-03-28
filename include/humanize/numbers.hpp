@@ -8,42 +8,12 @@
 
 namespace humanize {
 
-namespace _ {
-
-/*
-template <typename Number, bool = std::is_integral<Number>::value,
-          bool = std::is_unsigned<Number>::value>
-struct Numbers {
-    static std::string
-    compactInteger(Number x)
-    {
-        return "lul";
-    }
-};
-
-template <typename Number, bool = std::is_integral<Number>::value,
-          bool = !std::is_unsigned<Number>::value>
-struct Numbers {
-    static std::string
-    compactInteger(Number x)
-    {
-        return "lul";
-    }
-};
-*/
+namespace {
 
 struct NumberStruct {
     int length;
     char suffix;
 };
-
-}  // namespace _
-
-/*
-template <typename Number,
-          typename = std::enable_if<std::is_scalar<Number>::value>::type>
-const char *
-*/
 
 // return const char * with arguments typename Number, and input char buffer
 // with size of numeric_limits<Number, and with input format string from
@@ -54,8 +24,6 @@ numberToChars(char *str, Number x)
 {
     std::sprintf(str, format_string<Number>::format(), x);
 }
-
-#include <assert.h>
 
 template <typename Number>
 void
@@ -72,6 +40,8 @@ absValue(Number &,
     // do nothing
 }
 
+}  // anonymous namespace
+
 // Signed integer
 template <typename Number,
           typename = std::enable_if<std::is_integral<Number>::value>::type>
@@ -86,7 +56,7 @@ compactInteger(Number number, unsigned decimals = 0)
     Number absNumber = number;
     absValue(absNumber);
 
-    static std::array<_::NumberStruct, 4> numberLengths = {{
+    static std::array<NumberStruct, 4> numberLengths = {{
         {13, 'T'},  //
         {10, 'B'},  //
         {7, 'M'},   //
@@ -108,7 +78,7 @@ compactInteger(Number number, unsigned decimals = 0)
     }
 
     // do complicated shit
-    _::NumberStruct numberStruct;
+    NumberStruct numberStruct;
     for (auto p : numberLengths) {
         if (absNumberLength >= p.length) {
             numberStruct = p;
@@ -148,24 +118,5 @@ compactInteger(Number number, unsigned decimals = 0)
 
     return subStr;
 }
-
-// Unsigned integer
-/*
-template <typename Number,
-          typename = std::enable_if<std::is_integral<Number>::value>::type>
-std::string
-compactInteger(
-    Number x, unsigned decimals = 0,
-    typename std::enable_if<std::is_unsigned<Number>::value>::type * = 0)
-{
-    std::string num = std::to_string(x);
-
-    if (x < 1000) {
-        return num;
-    }
-
-    return num;
-}
-*/
 
 }  // namespace humanize
