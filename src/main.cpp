@@ -8,6 +8,9 @@
 
 TEST_CASE("compactInteger", "xd")
 {
+    REQUIRE(humanize::compactInteger(0) == "0");
+    REQUIRE(humanize::compactInteger(-0) == "0");
+
     REQUIRE(humanize::compactInteger(5) == "5");
     REQUIRE(humanize::compactInteger(999) == "999");
     REQUIRE(humanize::compactInteger(-5) == "-5");
