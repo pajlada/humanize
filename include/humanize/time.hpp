@@ -223,9 +223,7 @@ diffTime(const std::chrono::time_point<Clock, Duration> &start,
          const std::chrono::time_point<Clock, Duration> &end,
          SuffixType suffixType = SuffixType::Long, unsigned maxPoints = 2)
 {
-    auto res = relativeTime(start, end, suffixType, maxPoints);
-
-    return res.str;
+    return relativeTime(start, end, suffixType, maxPoints).str;
 }
 
 template <class Clock>

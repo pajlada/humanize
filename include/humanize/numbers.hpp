@@ -30,7 +30,7 @@ void
 absValue(Number &x,
          typename std::enable_if<std::is_signed<Number>::value>::type * = 0)
 {
-    x = std::abs(x);
+    x = static_cast<Number>(std::abs(x));
 }
 template <typename Number>
 void
@@ -39,6 +39,66 @@ absValue(Number &,
 {
     // do nothing
 }
+
+template <bool IsSigned>
+struct SignedHelper {
+};
+
+template <>
+struct SignedHelper<false> {
+    template <typename Number>
+    static char *
+    getStringWithoutSign(char *str, Number)
+    {
+        return str;
+    }
+
+    template <typename Number>
+    static void
+    test(char *str, Number, unsigned decimals, const char *numberStr,
+         int decimalIndex, const NumberStruct &ns)
+    {
+        if (decimals > 0) {
+            std::sprintf(str, "%.*s.%.*s%c", decimalIndex, numberStr, decimals,
+                         numberStr + decimalIndex, ns.suffix);
+        } else {
+            std::sprintf(str, "%.*s%c", decimalIndex, numberStr, ns.suffix);
+        }
+    }
+};
+
+template <>
+struct SignedHelper<true> {
+    template <typename Number>
+    static char *
+    getStringWithoutSign(char *str, Number number)
+    {
+        if (number < 0) {
+            return str + 1;
+        } else {
+            return str;
+        }
+    }
+
+    template <typename Number>
+    static void
+    test(char *str, Number number, unsigned decimals, const char *numberStr,
+         int decimalIndex, const NumberStruct &ns)
+    {
+        if (number < 0) {
+            if (decimals > 0) {
+                std::sprintf(str, "-%.*s.%.*s%c", decimalIndex, numberStr,
+                             decimals, numberStr + decimalIndex, ns.suffix);
+            } else {
+                std::sprintf(str, "-%.*s%c", decimalIndex, numberStr,
+                             ns.suffix);
+            }
+        } else {
+            SignedHelper<false>::test(str, number, decimals, numberStr,
+                                      decimalIndex, ns);
+        }
+    }
+};
 
 }  // anonymous namespace
 
@@ -63,60 +123,34 @@ compactInteger(Number number, unsigned decimals = 0)
         {4, 'k'},   //
     }};
 
-    char *cNoSign;
+    char *numberStr =
+        SignedHelper<std::is_signed<Number>::value>::getStringWithoutSign(
+            str, number);
 
-    if (std::is_signed<Number>::value && number < 0) {
-        cNoSign = str + 1;
-    } else {
-        cNoSign = str;
-    }
-
-    int absNumberLength = static_cast<int>(strlen(cNoSign));
+    int absNumberLength = static_cast<int>(strlen(numberStr));
 
     if (absNumber < 1000) {
         return str;
     }
 
     // do complicated shit
-    NumberStruct numberStruct;
-    for (auto p : numberLengths) {
-        if (absNumberLength >= p.length) {
-            numberStruct = p;
-            break;
+    for (const auto &numberStruct : numberLengths) {
+        if (absNumberLength >= numberStruct.length) {
+            // Found matching NumberStruct
+            int decimalIndex = absNumberLength - numberStruct.length + 1;
+
+            char finalStr[maxStringSize];
+
+            SignedHelper<std::is_signed<Number>::value>::test(
+                finalStr, number, decimals, numberStr, decimalIndex,
+                numberStruct);
+
+            return finalStr;
         }
     }
 
-    int decimalIndex = absNumberLength - numberStruct.length + 1;
-
-    char finalStr[maxStringSize];
-
-    if (std::is_signed<Number>::value && number < 0) {
-        if (decimals > 0) {
-            std::sprintf(finalStr, "-%.*s.%.*s%c", decimalIndex, cNoSign,
-                         decimals, cNoSign + decimalIndex, numberStruct.suffix);
-        } else {
-            std::sprintf(finalStr, "-%.*s%c", decimalIndex, cNoSign,
-                         numberStruct.suffix);
-        }
-    } else {
-        if (decimals > 0) {
-            std::sprintf(finalStr, "%.*s.%.*s%c", decimalIndex, cNoSign,
-                         decimals, cNoSign + decimalIndex, numberStruct.suffix);
-        } else {
-            std::sprintf(finalStr, "%.*s%c", decimalIndex, cNoSign,
-                         numberStruct.suffix);
-        }
-    }
-
-    return finalStr;
-
-    char subStr[maxStringSize];
-    // substr original str
-    memcpy(subStr, cNoSign, decimalIndex);
-    subStr[decimalIndex] = numberStruct.suffix;
-    subStr[decimalIndex + 1] = '\0';
-
-    return subStr;
+    // This should never happen
+    return "?";
 }
 
 }  // namespace humanize
