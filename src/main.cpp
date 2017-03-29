@@ -5,6 +5,79 @@
 #include "libs/catch.hpp"
 
 #include <inttypes.h>
+#include <chrono>
+#include <iostream>
+
+TEST_CASE("relativeTime", "xd")
+{
+    using namespace std::chrono_literals;
+
+    auto systemNow = std::chrono::system_clock::now();
+    auto twelveHours = std::chrono::hours(12);
+    auto d1 = std::chrono::minutes(1);
+    auto d2 = std::chrono::minutes(2);
+    auto d3 = std::chrono::minutes(3);
+    auto d4 = std::chrono::minutes(750);
+    auto d5 = std::chrono::hours(12) + std::chrono::minutes(30);
+    auto steadyNow = std::chrono::steady_clock::now();
+
+    humanize::TimeResult rNow = {"now", 0, humanize::TimeResult::Now};
+
+    // make sure simple shit works with both system_clock and steady_clock
+    REQUIRE(humanize::relativeTime(systemNow, systemNow) == rNow);
+    REQUIRE(humanize::relativeTime(steadyNow, steadyNow) == rNow);
+
+    REQUIRE(humanize::relativeTime(systemNow) == rNow);
+    REQUIRE(humanize::relativeTime(steadyNow) == rNow);
+
+    REQUIRE(humanize::relativeTime(twelveHours).str == "12 hours");
+
+    REQUIRE(humanize::relativeTime(d1).str == "1 minute");
+    REQUIRE(humanize::relativeTime(d2).str == "2 minutes");
+    REQUIRE(humanize::relativeTime(d3).str == "3 minutes");
+    REQUIRE(humanize::relativeTime(d4).str == "12 hours, and 30 minutes");
+    REQUIRE(humanize::relativeTime(d5).str == "12 hours, and 30 minutes");
+
+    REQUIRE(humanize::relativeTime(systemNow - twelveHours).str == "12 hours");
+    REQUIRE(humanize::relativeTime(systemNow - twelveHours, systemNow,
+                                   humanize::SuffixType::Short)
+                .str == "12h");
+}
+
+TEST_CASE("diffTime", "xd")
+{
+    using namespace std::chrono_literals;
+
+    auto systemNow = std::chrono::system_clock::now();
+    auto twelveHours = std::chrono::hours(12);
+    auto d1 = std::chrono::minutes(1);
+    auto d2 = std::chrono::minutes(2);
+    auto d3 = std::chrono::minutes(3);
+    auto d4 = std::chrono::minutes(750);
+    auto d5 = std::chrono::hours(12) + std::chrono::minutes(30);
+    auto steadyNow = std::chrono::steady_clock::now();
+
+    humanize::TimeResult rNow = {"now", 0, humanize::TimeResult::Now};
+
+    // make sure simple shit works with both system_clock and steady_clock
+    REQUIRE(humanize::diffTime(systemNow, systemNow) == "now");
+    REQUIRE(humanize::diffTime(steadyNow, steadyNow) == "now");
+
+    REQUIRE(humanize::diffTime(systemNow) == "now");
+    REQUIRE(humanize::diffTime(steadyNow) == "now");
+
+    REQUIRE(humanize::diffTime(twelveHours) == "12 hours");
+
+    REQUIRE(humanize::diffTime(d1) == "1 minute");
+    REQUIRE(humanize::diffTime(d2) == "2 minutes");
+    REQUIRE(humanize::diffTime(d3) == "3 minutes");
+    REQUIRE(humanize::diffTime(d4) == "12 hours, and 30 minutes");
+    REQUIRE(humanize::diffTime(d5) == "12 hours, and 30 minutes");
+
+    REQUIRE(humanize::diffTime(systemNow - twelveHours) == "12 hours");
+    REQUIRE(humanize::diffTime(systemNow - twelveHours, systemNow,
+                               humanize::SuffixType::Short) == "12h");
+}
 
 TEST_CASE("compactInteger", "xd")
 {
