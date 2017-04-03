@@ -153,3 +153,23 @@ TEST_CASE("compactInteger", "xd")
     REQUIRE(humanize::compactInteger(-5.5) == "-5.500000");
     */
 }
+
+TEST_CASE("ordinal", "xd")
+{
+    REQUIRE(humanize::ordinal(-1) == "-1");
+    REQUIRE(humanize::ordinal(0) == "0th");
+    REQUIRE(humanize::ordinal(1) == "1st");
+    REQUIRE(humanize::ordinal(2) == "2nd");
+    REQUIRE(humanize::ordinal(3) == "3rd");
+    REQUIRE(humanize::ordinal(4) == "4th");
+    REQUIRE(humanize::ordinal(5) == "5th");
+    REQUIRE(humanize::ordinal(52) == "52nd");
+    REQUIRE(humanize::ordinal(95) == "95th");
+    REQUIRE(humanize::ordinal(100) == "100th");
+    REQUIRE(humanize::ordinal(101) == "101st");
+    REQUIRE(humanize::ordinal(102) == "102nd");
+    REQUIRE(humanize::ordinal(103) == "103rd");
+    REQUIRE(humanize::ordinal(104) == "104th");
+    REQUIRE(humanize::ordinal(195) == "195th");
+    REQUIRE(humanize::ordinal(5000) == "5000th");
+}

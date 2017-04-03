@@ -153,4 +153,44 @@ compactInteger(Number number, unsigned decimals = 0)
     return "?";
 }
 
+template <typename Number,
+          typename = std::enable_if<std::is_integral<Number>::value>::type>
+std::string
+ordinal(const Number number)
+{
+    std::string numString = std::to_string(number);
+    if (number < 0) {
+        return numString;
+    }
+
+    std::string end;
+
+    switch (number % 100) {
+        case 11:
+        case 12:
+        case 13:
+            end = "th";
+            break;
+
+        default: {
+            switch (number % 10) {
+                case 1:
+                    end = "st";
+                    break;
+                case 2:
+                    end = "nd";
+                    break;
+                case 3:
+                    end = "rd";
+                    break;
+                default:
+                    end = "th";
+                    break;
+            }
+        } break;
+    }
+
+    return numString + end;
+}
+
 }  // namespace humanize
