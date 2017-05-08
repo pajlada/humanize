@@ -6,6 +6,29 @@
 
 namespace humanize {
 
+// things that are implemented in C++17
+namespace future {
+
+template <class T>
+struct is_duration : public std::false_type {
+};
+
+template <class Rep, class Period>
+struct is_duration<std::chrono::duration<Rep, Period>> : public std::true_type {
+};
+
+template <class Rep, class Period,
+          class = typename std::enable_if<
+              std::chrono::duration<Rep, Period>::min() <
+              std::chrono::duration<Rep, Period>::zero()>::type>
+constexpr std::chrono::duration<Rep, Period>
+chronoAbs(std::chrono::duration<Rep, Period> d)
+{
+    return d >= d.zero() ? d : -d;
+}
+
+}  // namespace future
+
 enum SuffixType {
     Long,
     Short,
@@ -119,7 +142,7 @@ relativeTime(const std::chrono::time_point<Clock, Duration> &start,
 {
     TimeResult tr;
 
-    auto intDiff = std::chrono::abs(
+    auto intDiff = future::chronoAbs(
         std::chrono::duration_cast<std::chrono::seconds>(start - end));
     int64_t secondsDiff = intDiff.count();
 
@@ -205,9 +228,9 @@ relativeTime(const std::chrono::time_point<Clock> &end,
     return humanize::relativeTime(Clock::now(), end, suffixType, maxPoints);
 }
 
-template <
-    class Duration, class Clock = std::chrono::system_clock,
-    typename = std::enable_if<std::chrono::_Is_duration<Duration>::value>::type>
+template <class Duration, class Clock = std::chrono::system_clock,
+          typename = typename std::enable_if<
+              future::is_duration<Duration>::value>::type>
 TimeResult
 relativeTime(const Duration &duration, SuffixType suffixType = SuffixType::Long,
              unsigned maxPoints = 2)
@@ -234,9 +257,9 @@ diffTime(const std::chrono::time_point<Clock> &end,
     return humanize::diffTime(Clock::now(), end, suffixType, maxPoints);
 }
 
-template <
-    class Duration, class Clock = std::chrono::system_clock,
-    typename = std::enable_if<std::chrono::_Is_duration<Duration>::value>::type>
+template <class Duration, class Clock = std::chrono::system_clock,
+          typename = typename std::enable_if<
+              future::is_duration<Duration>::value>::type>
 std::string
 diffTime(const Duration &duration, SuffixType suffixType = SuffixType::Long,
          unsigned maxPoints = 2)

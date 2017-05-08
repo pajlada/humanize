@@ -1,3 +1,6 @@
+# ignore own binary
+humanize
+
 # C++ objects and libs
 
 *.slo
@@ -35,4 +38,3 @@ Makefile*
 
 # QtCtreator CMake
 CMakeLists.txt.user
-

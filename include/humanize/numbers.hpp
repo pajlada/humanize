@@ -3,6 +3,8 @@
 #include "humanize/format_string.hpp"
 
 #include <array>
+#include <cstring>
+#include <limits>
 #include <string>
 #include <type_traits>
 
@@ -103,8 +105,8 @@ struct SignedHelper<true> {
 }  // anonymous namespace
 
 // Signed integer
-template <typename Number,
-          typename = std::enable_if<std::is_integral<Number>::value>::type>
+template <typename Number, typename = typename std::enable_if<
+                               std::is_integral<Number>::value>::type>
 std::string
 compactInteger(Number number, unsigned decimals = 0)
 {
@@ -127,7 +129,7 @@ compactInteger(Number number, unsigned decimals = 0)
         SignedHelper<std::is_signed<Number>::value>::getStringWithoutSign(
             str, number);
 
-    int absNumberLength = static_cast<int>(strlen(numberStr));
+    int absNumberLength = static_cast<int>(std::strlen(numberStr));
 
     if (absNumber < 1000) {
         return str;
@@ -153,8 +155,8 @@ compactInteger(Number number, unsigned decimals = 0)
     return "?";
 }
 
-template <typename Number,
-          typename = std::enable_if<std::is_integral<Number>::value>::type>
+template <typename Number, typename = typename std::enable_if<
+                               std::is_integral<Number>::value>::type>
 std::string
 ordinal(const Number number)
 {
