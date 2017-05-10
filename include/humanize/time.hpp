@@ -3,6 +3,7 @@
 #include <math.h>
 #include <chrono>
 #include <string>
+#include <type_traits>
 
 namespace humanize {
 
@@ -17,10 +18,10 @@ template <class Rep, class Period>
 struct is_duration<std::chrono::duration<Rep, Period>> : public std::true_type {
 };
 
-template <class Rep, class Period,
-          class = typename std::enable_if<
-              std::chrono::duration<Rep, Period>::min() <
-              std::chrono::duration<Rep, Period>::zero()>::type>
+template <
+    class Rep, class Period,
+    class = std::enable_if_t<(std::chrono::duration<Rep, Period>::min() <
+                              std::chrono::duration<Rep, Period>::zero())>>
 constexpr std::chrono::duration<Rep, Period>
 chronoAbs(std::chrono::duration<Rep, Period> d)
 {
