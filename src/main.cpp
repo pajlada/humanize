@@ -173,3 +173,11 @@ TEST_CASE("ordinal", "xd")
     REQUIRE(humanize::ordinal(195) == "195th");
     REQUIRE(humanize::ordinal(5000) == "5000th");
 }
+
+TEST_CASE("toFixed", "xd")
+{
+    REQUIRE(humanize::toFixed(502.2) == "502");
+    REQUIRE(humanize::toFixed(502.29123123) == "502");
+    REQUIRE(humanize::toFixed(502.9) == "502");
+    REQUIRE(humanize::toFixed(503.2) == "503");
+}

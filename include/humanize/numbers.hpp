@@ -193,4 +193,24 @@ ordinal(const Number number)
     return numString + end;
 }
 
+template <typename Number, typename = std::enable_if<
+                               std::is_floating_point<Number>::value>::type>
+std::string
+toFixed(const Number number, unsigned precision = 0)
+{
+    if (precision == 0) {
+        std::string ret = std::to_string(number);
+        return ret.substr(0,
+                          ret.find(std::numpunct_byname<char>::decimal_point()));
+    }
+    std::string numString = std::to_string(number);
+    if (number < 0) {
+        return numString;
+    }
+
+    std::string end;
+
+    return numString + end;
+}
+
 }  // namespace humanize
