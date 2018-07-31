@@ -1,9 +1,12 @@
 #pragma once
 
-#include <math.h>
+#include <ctime>
+#include <cmath>
 #include <chrono>
 #include <string>
 #include <type_traits>
+#include <sstream>
+#include <iomanip>
 
 namespace humanize {
 
@@ -268,6 +271,29 @@ diffTime(const Duration &duration, SuffixType suffixType = SuffixType::Long,
     auto c1 = std::chrono::time_point_cast<Duration>(Clock::now());
     auto c2 = c1 + duration;
     return humanize::diffTime(c1, c2, suffixType, maxPoints);
+}
+
+template <class Clock>
+std::string
+toIso(const std::chrono::time_point<Clock> &now)
+{
+    time_t tt = std::chrono::system_clock::to_time_t(now);
+    tm local_tm = *localtime(&tt);
+
+    static const char *fmt = "%Y-%m-%d %H:%M:%S";
+    char buf[32];
+
+    strftime(buf, 32, fmt, &local_tm);
+
+    std::string timeString(buf);
+
+    std::stringstream ss;
+
+    std::chrono::time_point<Clock, std::chrono::milliseconds> ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+
+    ss << buf << '.' << std::setfill('0') << std::setw(3) << (ms.time_since_epoch().count() % 999);
+
+    return ss.str();
 }
 
 }  // namespace humanize
