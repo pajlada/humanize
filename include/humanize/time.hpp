@@ -1,12 +1,13 @@
 #pragma once
 
-#include <ctime>
-#include <cmath>
+#include <time.h>
 #include <chrono>
+#include <cmath>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <type_traits>
-#include <sstream>
-#include <iomanip>
 
 namespace humanize {
 
@@ -294,9 +295,11 @@ toIso(const std::chrono::time_point<Clock> &now, tm *threadLocalTmBuf = nullptr)
 
     std::stringstream ss;
 
-    std::chrono::time_point<Clock, std::chrono::milliseconds> ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+    std::chrono::time_point<Clock, std::chrono::milliseconds> ms =
+        std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 
-    ss << buf << '.' << std::setfill('0') << std::setw(3) << (ms.time_since_epoch().count() % 999);
+    ss << buf << '.' << std::setfill('0') << std::setw(3)
+       << (ms.time_since_epoch().count() % 999);
 
     return ss.str();
 }
