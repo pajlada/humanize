@@ -275,10 +275,15 @@ diffTime(const Duration &duration, SuffixType suffixType = SuffixType::Long,
 
 template <class Clock>
 std::string
-toIso(const std::chrono::time_point<Clock> &now)
+toIso(const std::chrono::time_point<Clock> &now, tm *threadLocalTmBuf = nullptr)
 {
+    static tm tmBuf;
     time_t tt = std::chrono::system_clock::to_time_t(now);
-    tm local_tm = *localtime(&tt);
+
+    if (threadLocalTmBuf == nullptr) {
+        threadLocalTmBuf = &tmBuf;
+    }
+    auto local_tm = *::localtime_r(&tt, threadLocalTmBuf);
 
     static const char *fmt = "%Y-%m-%d %H:%M:%S";
     char buf[32];
